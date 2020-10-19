@@ -10,3 +10,5 @@ dotnet add ./WebApp.Test/WebApp.Test.csproj reference ./WebApp/WebApp.csproj # a
 
 dotnet add package Microsoft.AspNetCore.TestHost --version 3.1.9 # install TestServer for testing
 ```
+
+- [ ] 2.run dotnet core project in docker
