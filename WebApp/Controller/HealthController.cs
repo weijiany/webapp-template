@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controller
 {
-    [Route("hello")]
-    public class HelloWorldController : ControllerBase
+    [Route("health")]
+    public class HealthController : ControllerBase
     {
         [HttpGet]
         public string Get()
         {
-            return "Hello World!!!";
+            return "ok";
         }
     }
 }
