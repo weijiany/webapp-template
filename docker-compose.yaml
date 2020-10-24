@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  sql:
+    image: webapp-sql:latest
+    build: data
+    container_name: webapp-sql
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD} # https://hub.docker.com/_/microsoft-mssql-server requires use of SA_PASSWORD
+      - DATABASE_NAME=${DATABASE_NAME}
+
+  migration:
+    image: migration:latest
+    build: Migration
+    container_name: webapp-sql-migration
+    depends_on:
+      - sql
+    environment:
+      - SA_PASSWORD=${SA_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_SERVER=${DATABASE_SERVER}
