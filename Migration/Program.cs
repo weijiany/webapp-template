@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data.SqlClient;
+using System.Threading;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,13 +8,24 @@ namespace Migration
 {
     class Program
     {
-        static void Main(string[] args)
+        // https://fluentmigrator.github.io/articles/quickstart.html?tabs=runner-in-process
+        static void Main()
         {
             var serviceProvider = CreateServices();
 
-            using (var scope = serviceProvider.CreateScope())
+            var times = 1;
+            while (times++ <= 10)
             {
-                UpdateDatabase(scope.ServiceProvider);
+                try
+                {
+                    using var scope = serviceProvider.CreateScope();
+                    UpdateDatabase(scope.ServiceProvider);
+                }
+                catch (SqlException e)
+                {
+                    Console.WriteLine($"fail times: [{times}], exception: {e}");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
             }
         }
 
@@ -22,10 +35,18 @@ namespace Migration
                 .AddFluentMigratorCore()
                 .ConfigureRunner(rb => rb
                     .AddSqlServer2016()
-                    .WithGlobalConnectionString("Server=localhost;Database=WebApp;User Id=sa;Password=WJY@123456;")
+                    .WithGlobalConnectionString(GenerateConnectionString())
                     .ScanIn(typeof(Program).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole())
                 .BuildServiceProvider(false);
+        }
+
+        private static string GenerateConnectionString()
+        {
+            var databaseServer = Environment.GetEnvironmentVariable("DATABASE_SERVER") ?? "localhost";
+            var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "WebApp";
+            var saPasswoord = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "WJY@123456";
+            return $"Server={databaseServer};Database={databaseName};User Id=sa;Password={saPasswoord};";
         }
 
         private static void UpdateDatabase(IServiceProvider serviceProvider)
