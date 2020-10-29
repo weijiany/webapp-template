@@ -6,3 +6,10 @@ variable "authentication" {
     client_certificate_password = string
   })
 }
+
+variable "sql_server" {
+  type = object({
+    username = string
+    password = string
+  })
+}

@@ -4,3 +4,8 @@ authentication = {
   tenant_id                   = ""
   client_certificate_password = ""
 }
+
+sql_server = {
+  username = ""
+  password = ""
+}
