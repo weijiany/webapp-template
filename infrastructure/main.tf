@@ -42,3 +42,11 @@ resource "azurerm_sql_database" "webapp-sql-db" {
   requested_service_objective_name = "Basic"
   edition                          = "Basic"
 }
+
+resource "azurerm_container_registry" "acr" {
+  name                     = "workshopacrwjy"
+  resource_group_name      = azurerm_resource_group.workshop.name
+  location                 = local.location
+  sku                      = "Basic"
+  admin_enabled            = true
+}
