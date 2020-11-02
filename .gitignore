@@ -40,3 +40,4 @@ out/
 .terraform/
 sp.json
 sensitive.tfvars
+id_rsa

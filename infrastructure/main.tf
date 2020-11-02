@@ -50,3 +50,30 @@ resource "azurerm_container_registry" "acr" {
   sku                      = "Basic"
   admin_enabled            = true
 }
+
+resource "azurerm_kubernetes_cluster" "aks" {
+  dns_prefix = "workshop"
+  location = local.location
+  name = "workshopakswjy"
+  resource_group_name = azurerm_resource_group.workshop.name
+  default_node_pool {
+    name = "pool1"
+    vm_size = "Standard_D2_v2"
+    node_count = 1
+  }
+
+  service_principal {
+    client_id = var.authentication.client_id
+    client_secret = var.authentication.client_certificate_password
+  }
+
+  linux_profile {
+    admin_username = "ubuntu"
+    ssh_key {
+      key_data = file("./ssh/id_rsa.pub")
+    }
+  }
+  role_based_access_control {
+    enabled = true
+  }
+}
