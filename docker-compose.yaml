@@ -21,3 +21,21 @@ services:
       - SA_PASSWORD=${SA_PASSWORD}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_SERVER=${DATABASE_SERVER}
+
+  test:
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    depends_on:
+      - sql
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+          dotnet restore
+          dotnet test WebApp.Test/WebApp.Test.csproj
+    environment:
+      - SA_PASSWORD=${SA_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_SERVER=${DATABASE_SERVER}

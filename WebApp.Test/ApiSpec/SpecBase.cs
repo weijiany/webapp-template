@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.AspNetCore.Hosting;
@@ -12,12 +13,16 @@ namespace WebApp.Test.ApiSpec
 
         protected SpecBase()
         {
+            var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "WJY@123456";
+            var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "WebApp";
+            var databaseServer = Environment.GetEnvironmentVariable("DATABASE_SERVER") ?? "localhost";
+
             var myConfiguration = new Dictionary<string, string>
             {
-                ["DB:Server"] = "localhost",
                 ["DB:UserName"] = "sa",
-                ["DB:Password"] = "WJY@123456",
-                ["DB:DataBase"] = "WebApp"
+                ["DB:Password"] = saPassword,
+                ["DB:DataBase"] = databaseName,
+                ["DB:Server"] = databaseServer
             };
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(myConfiguration)
