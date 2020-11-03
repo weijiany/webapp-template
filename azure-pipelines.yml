@@ -11,8 +11,8 @@ stages:
   - stage: Build_And_Test
     displayName: Build And Test
     jobs:
-      - job: Build
-        displayName: Build
+      - job: test
+        displayName: run test
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -20,6 +20,11 @@ stages:
             inputs:
               filePath: './scripts/run.sh'
               arguments: 'ut'
+      - job: build_docker_image
+        displayName: build docker image
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
           - task: Docker@2
             inputs:
               command: 'buildAndPush'
