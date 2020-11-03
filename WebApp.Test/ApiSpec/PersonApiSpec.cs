@@ -12,29 +12,8 @@ using Xunit;
 
 namespace WebApp.Test.ApiSpec
 {
-    public class PersonApiSpec
+    public class PersonApiSpec : SpecBase
     {
-        private readonly HttpClient _client;
-
-        public PersonApiSpec()
-        {
-            var myConfiguration = new Dictionary<string, string>
-            {
-                ["DB:Server"] = "localhost",
-                ["DB:UserName"] = "sa",
-                ["DB:Password"] = "WJY@123456",
-                ["DB:DataBase"] = "WebApp"
-            };
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(myConfiguration)
-                .Build();
-
-            var hostBuilder = new WebHostBuilder().UseStartup<Startup>()
-                .ConfigureAppConfiguration((_, builder) => builder.AddConfiguration(configuration));
-            var testServer = new TestServer(hostBuilder);
-            _client = testServer.CreateClient();
-        }
-
         [Fact]
         async Task should_return_ok_when_get_person()
         {

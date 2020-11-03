@@ -6,16 +6,8 @@ using Xunit;
 
 namespace WebApp.Test.ApiSpec
 {
-    public class HealthApiSpec
+    public class HealthApiSpec : SpecBase
     {
-        private readonly HttpClient _client;
-
-        public HealthApiSpec()
-        {
-            var testServer = new TestServer(new WebHostBuilder().UseStartup<Startup>());
-            _client = testServer.CreateClient();
-        }
-
         [Fact]
         async Task should_return_ok()
         {
