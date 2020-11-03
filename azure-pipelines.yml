@@ -34,3 +34,10 @@ stages:
               command: 'buildAndPush'
               Dockerfile: './Dockerfile'
               buildContext: '.'
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'acr'
+              repository: 'migration'
+              command: 'buildAndPush'
+              Dockerfile: './Migration/Dockerfile'
+              buildContext: './Migration'
