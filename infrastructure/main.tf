@@ -1,10 +1,14 @@
 provider "azurerm" {
-  version                     = "=2.33.0"
-  client_id                   = var.authentication.client_id
-  subscription_id             = var.authentication.subscription_id
-  tenant_id                   = var.authentication.tenant_id
-  client_certificate_password = var.authentication.client_certificate_password
-  features {}
+  version         = "=2.33.0"
+  client_id       = var.authentication.client_id
+  subscription_id = var.authentication.subscription_id
+  tenant_id       = var.authentication.tenant_id
+  client_secret   = var.authentication.client_secret
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
 }
 
 terraform {
@@ -44,27 +48,27 @@ resource "azurerm_sql_database" "webapp-sql-db" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                     = "workshopacrwjy"
-  resource_group_name      = azurerm_resource_group.workshop.name
-  location                 = local.location
-  sku                      = "Basic"
-  admin_enabled            = true
+  name                = "workshopacrwjy"
+  resource_group_name = azurerm_resource_group.workshop.name
+  location            = local.location
+  sku                 = "Basic"
+  admin_enabled       = true
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  dns_prefix = "workshop"
-  location = local.location
-  name = "workshopakswjy"
+  dns_prefix          = "workshop"
+  location            = local.location
+  name                = "workshopakswjy"
   resource_group_name = azurerm_resource_group.workshop.name
   default_node_pool {
-    name = "pool1"
-    vm_size = "Standard_D2_v2"
+    name       = "pool1"
+    vm_size    = "Standard_D2_v2"
     node_count = 1
   }
 
   service_principal {
-    client_id = var.authentication.client_id
-    client_secret = var.authentication.client_certificate_password
+    client_id     = var.authentication.client_id
+    client_secret = var.authentication.client_secret
   }
 
   linux_profile {
@@ -77,3 +81,33 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enabled = true
   }
 }
+
+resource "azurerm_key_vault" "key_vault" {
+  location            = local.location
+  name                = "key-vault-wjy"
+  resource_group_name = azurerm_resource_group.workshop.name
+  sku_name            = "standard"
+  tenant_id           = var.authentication.tenant_id
+  access_policy {
+    object_id = var.authentication.object_id
+    tenant_id = var.authentication.tenant_id
+
+    secret_permissions = [
+      "delete",
+      "get",
+      "list",
+      "set"
+    ]
+  }
+}
+
+//module "key_vault_secrets" {
+//  source = "./modules/key_vault_secret"
+//  key_vault_id = azurerm_key_vault.key_vault.id
+//  secrets = {
+//    DB-HOST = azurerm_sql_server.webapp-sql-server.fully_qualified_domain_name
+//    DB-USERNAME = azurerm_sql_server.webapp-sql-server.administrator_login
+//    DB-PASSWORD = azurerm_sql_server.webapp-sql-server.administrator_login_password
+//    DB-DATABASE = azurerm_sql_database.webapp-sql-db.name
+//  }
+//}
