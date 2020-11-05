@@ -41,3 +41,15 @@ stages:
               command: 'buildAndPush'
               Dockerfile: './Migration/Dockerfile'
               buildContext: './Migration'
+  - stage: Deploy_To_Dev
+      displayName: Deploy To Dev
+      jobs:
+        - job: migration
+            displayName: run db migration
+            pool:
+              vmImage: 'ubuntu-latest'
+            steps:
+              - task: Bash@3
+                inputs:
+                  filePath: './scripts/run.sh'
+                  arguments: 'ut'

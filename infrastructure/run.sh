@@ -1,20 +1,22 @@
 #!/bin/bash
 
+function get_value_from_tfvars_file() {
+  key=${1}
+  file_name=${2}
+  grep "${key}" "${file_name}" | grep -e '"\(.*\)"' -o | sed 's/"//g'
+}
+
 function init() {
-  # remove old tfstate file
-  rm -f ./.terraform/terraform.tfstate
-
-  # az login
-  subscription_id=$(grep 'subscription_id' ./sensitive.tfvars | grep -e '"\(.*\)"' -o | sed 's/"//g')
-  client_id=$(grep 'client_id' ./sensitive.tfvars | grep -e '"\(.*\)"' -o | sed 's/"//g')
-  tenant_id=$(grep 'tenant_id' ./sensitive.tfvars | grep -e '"\(.*\)"' -o | sed 's/"//g')
-  client_secret=$(grep 'client_secret' ./sensitive.tfvars | grep -e '"\(.*\)"' -o | sed 's/"//g')
-  az login --service-principal --username "${client_id}" --password "${client_secret}" --tenant "${tenant_id}"
-  az account set -s "${subscription_id}"
-
-  # get storage account access key
-  storage_account_key=$(az storage account keys list --account-name workshopbackend | grep -m1 'value' | awk -F ':' '{print $2}' | grep -e '"\(.*\)"' -o | sed 's/"//g')
-  terraform init -backend-config="access_key=${storage_account_key}"
+  rm -rf .terraform
+  subscription_id=$(get_value_from_tfvars_file 'subscription_id' './sensitive.tfvars')
+  client_id=$(get_value_from_tfvars_file 'client_id' './sensitive.tfvars')
+  tenant_id=$(get_value_from_tfvars_file 'tenant_id' './sensitive.tfvars')
+  client_secret=$(get_value_from_tfvars_file 'client_secret' './sensitive.tfvars')
+  terraform init \
+      -backend-config="client_id=${client_id}" \
+      -backend-config="client_secret=${client_secret}" \
+      -backend-config="subscription_id=${subscription_id}" \
+      -backend-config="tenant_id=${tenant_id}"
 }
 
 case ${1} in

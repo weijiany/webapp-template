@@ -101,13 +101,13 @@ resource "azurerm_key_vault" "key_vault" {
   }
 }
 
-//module "key_vault_secrets" {
-//  source = "./modules/key_vault_secret"
-//  key_vault_id = azurerm_key_vault.key_vault.id
-//  secrets = {
-//    DB-HOST = azurerm_sql_server.webapp-sql-server.fully_qualified_domain_name
-//    DB-USERNAME = azurerm_sql_server.webapp-sql-server.administrator_login
-//    DB-PASSWORD = azurerm_sql_server.webapp-sql-server.administrator_login_password
-//    DB-DATABASE = azurerm_sql_database.webapp-sql-db.name
-//  }
-//}
+module "key_vault_secrets" {
+  source = "./modules/key_vault_secret"
+  key_vault_id = azurerm_key_vault.key_vault.id
+  secrets = {
+    DB-HOST = azurerm_sql_server.webapp-sql-server.fully_qualified_domain_name
+    DB-USERNAME = azurerm_sql_server.webapp-sql-server.administrator_login
+    DB-PASSWORD = azurerm_sql_server.webapp-sql-server.administrator_login_password
+    DB-DATABASE = azurerm_sql_database.webapp-sql-db.name
+  }
+}
