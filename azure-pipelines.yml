@@ -6,6 +6,7 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
+  registry: 'workshopacrwjy.azurecr.io'
 
 stages:
   - stage: Build_And_Test
@@ -17,6 +18,7 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: Bash@3
+            displayName: run webapp test
             inputs:
               filePath: './scripts/run.sh'
               arguments: 'ut'
@@ -28,6 +30,7 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: Docker@2
+            displayName: build webapp docker image
             inputs:
               containerRegistry: 'acr'
               repository: 'webapp'
@@ -35,6 +38,7 @@ stages:
               Dockerfile: './Dockerfile'
               buildContext: '.'
           - task: Docker@2
+            displayName: build webapp migration docker image
             inputs:
               containerRegistry: 'acr'
               repository: 'migration'
@@ -50,16 +54,18 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: AzureKeyVault@1
+            displayName: get db connection info from azure key vault
             inputs:
               azureSubscription: 'Visual Studio Enterprise Subscription(81268f46-dd84-422c-8b11-4974af7d6e80)'
               KeyVaultName: 'key-vault-wjy'
               SecretsFilter: 'DB-HOST,DB-USERNAME,DB-PASSWORD,DB-DATABASE'
               RunAsPreJob: false
           - task: Bash@3
+            displayName: run db migration
             inputs:
               targetType: 'inline'
               script: |
-                docker run migration:$(Build.BuildId) -e 'DATABASE_SERVER=DB-HOST' \
+                docker run "${registry}/migration:$(Build.BuildId)" -e 'DATABASE_SERVER=DB-HOST' \
                   -e 'DATABASE_USERNAME=DB-USERNAME' \
                   -e 'SA_PASSWORD=DB-PASSWORD' \
                   -e 'DATABASE_NAME=DB-DATABASE' 
