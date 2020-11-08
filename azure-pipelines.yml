@@ -42,14 +42,24 @@ stages:
               Dockerfile: './Migration/Dockerfile'
               buildContext: './Migration'
   - stage: Deploy_To_Dev
-      displayName: Deploy To Dev
-      jobs:
-        - job: migration
-            displayName: run db migration
-            pool:
-              vmImage: 'ubuntu-latest'
-            steps:
-              - task: Bash@3
-                inputs:
-                  filePath: './scripts/run.sh'
-                  arguments: 'ut'
+    displayName: Deploy To Dev
+    jobs:
+      - job: migration
+        displayName: run db migration
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise Subscription(81268f46-dd84-422c-8b11-4974af7d6e80)'
+              KeyVaultName: 'key-vault-wjy'
+              SecretsFilter: 'DB-HOST,DB-USERNAME,DB-PASSWORD,DB-DATABASE'
+              RunAsPreJob: false
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker run migration:$(Build.BuildId) -e 'DATABASE_SERVER=DB-HOST' \
+                  -e 'DATABASE_USERNAME=DB-USERNAME' \
+                  -e 'SA_PASSWORD=DB-PASSWORD' \
+                  -e 'DATABASE_NAME=DB-DATABASE' 
