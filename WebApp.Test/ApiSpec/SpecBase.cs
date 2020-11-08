@@ -14,12 +14,13 @@ namespace WebApp.Test.ApiSpec
         protected SpecBase()
         {
             var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "WJY@123456";
+            var saUsername = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "sa";
             var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "WebApp";
             var databaseServer = Environment.GetEnvironmentVariable("DATABASE_SERVER") ?? "localhost";
 
             var myConfiguration = new Dictionary<string, string>
             {
-                ["DB:UserName"] = "sa",
+                ["DB:UserName"] = saUsername,
                 ["DB:Password"] = saPassword,
                 ["DB:DataBase"] = databaseName,
                 ["DB:Server"] = databaseServer
