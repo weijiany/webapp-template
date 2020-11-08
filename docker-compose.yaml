@@ -21,6 +21,7 @@ services:
       - SA_PASSWORD=${SA_PASSWORD}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_SERVER=${DATABASE_SERVER}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
 
   test:
     image: mcr.microsoft.com/dotnet/core/sdk:3.1

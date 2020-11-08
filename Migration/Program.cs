@@ -45,8 +45,9 @@ namespace Migration
         {
             var databaseServer = Environment.GetEnvironmentVariable("DATABASE_SERVER") ?? "localhost";
             var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "WebApp";
-            var saPasswoord = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "WJY@123456";
-            return $"Server={databaseServer};Database={databaseName};User Id=sa;Password={saPasswoord};";
+            var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "WJY@123456";
+            var saUsername = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "sa";
+            return $"Server={databaseServer};Database={databaseName};User Id={saUsername};Password={saPassword};";
         }
 
         private static void UpdateDatabase(IServiceProvider serviceProvider)
