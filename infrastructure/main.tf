@@ -101,6 +101,12 @@ resource "azurerm_key_vault" "key_vault" {
   }
 }
 
+resource "azurerm_key_vault_access_policy" "azure_devops" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  object_id = "428f8a23-5c92-4e0e-9185-06a93f56d6fa"
+  tenant_id = var.authentication.tenant_id
+}
+
 module "key_vault_secrets" {
   source = "./modules/key_vault_secret"
   key_vault_id = azurerm_key_vault.key_vault.id
@@ -110,4 +116,36 @@ module "key_vault_secrets" {
     DB-PASSWORD = azurerm_sql_server.webapp-sql-server.administrator_login_password
     DB-DATABASE = azurerm_sql_database.webapp-sql-db.name
   }
+}
+
+// ---------------------------------------------------------------------------
+provider "kubernetes" {
+  load_config_file       = "false"
+  host                   = azurerm_kubernetes_cluster.aks.kube_config.0.host
+  username               = azurerm_kubernetes_cluster.aks.kube_config.0.username
+  password               = azurerm_kubernetes_cluster.aks.kube_config.0.password
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+}
+
+resource "kubernetes_namespace" "dev" {
+  metadata {
+    name = "dev"
+  }
+}
+
+resource "kubernetes_secret" "webapp" {
+  metadata {
+    name = "webapp"
+  }
+
+  data = {
+    DB_HOST = azurerm_sql_server.webapp-sql-server.fully_qualified_domain_name
+    DB_USERNAME = azurerm_sql_server.webapp-sql-server.administrator_login
+    DB_PASSWORD = azurerm_sql_server.webapp-sql-server.administrator_login_password
+    DB_DATABASE = azurerm_sql_database.webapp-sql-db.name
+  }
+
+  type = "Opaque"
 }
